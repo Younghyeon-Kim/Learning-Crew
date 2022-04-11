@@ -1,8 +1,10 @@
 import pandas as pd
+import os
 
+path = "C:/Users/user/Desktop/data/chatbot_data/"
 #파일 불러오기(경로명은 각자)
-df = pd.read_csv("C:/Users/user/Desktop/file/chatbot_data/카페_train.csv")
-
+df = pd.read_csv(path + "카페_validation.csv")
+os.getcwd()
 
 #c-a , s-q 지우기
 no_data1 = df[ (df['발화자'] == 's') & (df['QA여부'] == 'q')].index
@@ -36,3 +38,6 @@ cafe_data= pd.DataFrame({'Q':Q,
 
 cafe_data
 
+cafe_data.to_csv(path + 'cafe_qa_validation.csv')
+
+pd.read_csv('cafe_qa_validation.csv')
