@@ -23,7 +23,7 @@ condition = train_data[(train_data.Intent == '웹사이트') | (train_data.Inten
 train_data.drop(condition, axis = 0, inplace = True)
 
 
-
+data_frame = train_data
 
 #################################
 ### 2. Intent 항목 레이블, 원핫인코딩(의도분석에 이용)
@@ -34,28 +34,28 @@ from sklearn.preprocessing import OneHotEncoder
 
 #레이블 인코딩
 lab_encoder = LabelEncoder()
-lab_encoder.fit(train_data['Intent'].unique())
+lab_encoder.fit(data_frame['Intent'].unique())
 lst = lab_encoder.classes_
 label_list = dict(zip(lst, range(len(lst))))
 
 print(label_list)    #원래값-숫자 목록
 
 #레이블 데이터 적용
-lab_in=lab_encoder.transform(train_data['Intent'])   # label 값
+lab_in=lab_encoder.transform(data_frame['Intent'])   # label 값
 ori_in=lab_encoder.inverse_transform(lab_in)              # 원래 값
-train_data['Intent'] = lab_in
+data_frame['Intent'] = lab_in
 
 #lable 값 저장(pkl파일로)
-with open(data_path + 'intent.pkl','wb') as f:
-    pickle.dump(train_data['Intent'],f)  
+with open(data_path + 'intent_train.pkl','wb') as f:
+    pickle.dump(data_frame['Intent'],f)  
 
 #pkl파일 불러오기
-with open(data_path + 'intent.pkl','rb') as f:
+with open(data_path + 'intent_train.pkl','rb') as f:
      intent = pickle.load(f)
 
 
 #원핫 인코딩(선택)
-train_data = pd.get_dummies(train_data, columns = ['Intent'])
+data_frame = pd.get_dummies(data_frame, columns = ['Intent'])
 
 
 
@@ -93,14 +93,14 @@ def qa_tk(df):
   global data_path
   tk_q = cleaning(df['Q'])
   tk_a = cleaning(df['A'])
-  with open(data_path + 'tk_q.pkl','wb') as f:
+  with open(data_path + 'tk_q_train.pkl','wb') as f:
     pickle.dump(tk_q,f)
-  with open(data_path + '/tk_a.pkl','wb') as f:
+  with open(data_path + 'tk_a_train.pkl','wb') as f:
     pickle.dump(tk_a,f)
   return tk_q, tk_a
 
 #토크나이징 하고 파일 저장하기
-tk_q, tk_a = qa_tk(train_data)
+tk_q, tk_a = qa_tk(data_frame)
 print(tk_q[0])
 print(tk_a[0])
 
@@ -110,10 +110,9 @@ print(tk_a[0])
 ### 4. 임베딩(분리한 단어를 분석할 수 있게 벡터로 변환)
 #######################################################
 
-
 import itertools
 def emb(data):
-  word_len = [len(train_data['Q'][i]) for i in train_data.index]
+  word_len = [len(data_frame['Q'][i]) for i in data_frame.index]
   MAX_SEQ_LEN = int(sum(word_len)/len(word_len))            #한 문장당 단어 평균 갯수
   voc = set(list(itertools.chain.from_iterable(data)))  #단어 총 갯수
   
@@ -131,14 +130,18 @@ def emb(data):
 
   
   x_train = pad_sequences(train_seq, maxlen=MAX_SEQ_LEN, padding='post', truncating='post')     # padding = 'pre' 하면 패딩값(0)이 앞에부터 채워짐.
-  with open(data_path + 'q_train.pkl', 'wb') as f:
-    pickle.dump(x_train, f)
+  
   return x_train
 
+
+#임베딩 하고 저장하기
 q_train = emb(tk_q)
 a_train = emb(tk_a)
+
 print(q_train[0])
 print(a_train[0])
 
-
-
+with open(data_path + 'emb_q_train.pkl', 'wb') as f:
+  pickle.dump(q_train, f)
+with open(data_path + 'emb_a_train.pkl', 'wb') as f:
+  pickle.dump(q_train, f)  
