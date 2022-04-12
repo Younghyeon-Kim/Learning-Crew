@@ -3,7 +3,7 @@ import os
 
 path = "C:/Users/user/Desktop/data/chatbot_data/"
 #파일 불러오기(경로명은 각자)
-df = pd.read_csv(path + "카페_validation.csv")
+df = pd.read_csv(path + "카페_train.csv")
 os.getcwd()
 
 #c-a , s-q 지우기
@@ -16,7 +16,8 @@ df1.reset_index(inplace = True, drop = True)
 
 #인텐트 항목 앞글자만 자르기
 lst = list(df1['인텐트'])
-lst2 = [i.split('_')[0] for i in lst]
+lst2 = [i.split('_')[0] if i.split('_')[0] != '제품' else i.split('_')[0] +'_'+ i.split('_')[2] for i in lst]
+# lst2 = [i.split('_')[0] for i in lst]
 df1['인텐트'] = lst2
 
 
@@ -36,8 +37,26 @@ cafe_data= pd.DataFrame({'Q':Q,
                 'Intent':Intent})
 
 
-cafe_data
+cafe_data['Intent'].value_counts()
 
-cafe_data.to_csv(path + 'cafe_qa_validation.csv')
 
-pd.read_csv('cafe_qa_validation.csv')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# cafe_data.to_csv(path + 'cafe_qa_validation.csv')
+
+# pd.read_csv('cafe_qa_validation.csv')
