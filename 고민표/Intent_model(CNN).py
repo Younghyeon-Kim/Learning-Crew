@@ -124,3 +124,6 @@ model.fit(train_ds, validation_data=val_ds, epochs=EPOCH, verbose=1)
 loss, accuracy = model.evaluate(test_ds, verbose=1)
 print('Accuracy: %f' % (accuracy * 100))
 print('loss: %f' % (loss))
+
+# 모델 저장  ○8
+model.save(data_path+ 'intent_model.h5')
