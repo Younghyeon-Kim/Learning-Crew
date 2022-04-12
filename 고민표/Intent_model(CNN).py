@@ -9,10 +9,6 @@ from tensorflow.keras.layers import Input, Embedding, Dense, Dropout, Conv1D, Gl
 from tensorflow.keras.optimizers import Adam
 
 
-###제품 제외하고 의도 분석하기
-
-
-
 #############################
 ### 1. 파일 불러오기
 #############################
@@ -29,16 +25,8 @@ train_data.drop(condition, axis = 0, inplace = True)
 
 
 
-########################
-####제품 항목 제외
-#########################
-ko=train_data[(train_data.Intent != '제품')]
-ko
-ko['Intent'].value_counts()
 
-
-
-data_frame = ko
+data_frame = train_data
 #토크나이징, 임베딩 진행
 
 
@@ -49,7 +37,7 @@ data_frame = ko
 
 import itertools
 voc = set(list(itertools.chain.from_iterable(tk_q)))
-label = ko['Intent']
+label = data_frame['Intent']
 word_len = [len(data_frame['Q'][i]) for i in data_frame.index] 
 
 
