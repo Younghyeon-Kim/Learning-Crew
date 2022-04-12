@@ -8,12 +8,7 @@ from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Input, Embedding, Dense, Dropout, Conv1D, GlobalMaxPool1D, concatenate
 from tensorflow.keras.optimizers import Adam
 
-
-#############################
-### 1. 파일 불러오기
-#############################
-
-data_path = '/content/drive/MyDrive/'
+data_path = '/content/drive/MyDrive/cafe_data/'
 
 train_data = pd.read_csv(data_path + 'cafe_qa_train.csv',index_col = 0)
 test_data = pd.read_csv(data_path + 'cafe_qa_validation.csv', index_col = 0)
@@ -22,13 +17,25 @@ test_data = pd.read_csv(data_path + 'cafe_qa_validation.csv', index_col = 0)
 condition = train_data[(train_data.Intent == '웹사이트') | (train_data.Intent == 'AS')].index
 train_data.drop(condition, axis = 0, inplace = True)
 
-
-
-
-
 data_frame = train_data
-#토크나이징, 임베딩 진행
 
+
+#############################
+### 1. 임베딩 파일 불러오기
+#############################
+
+
+
+data_path = '/content/drive/MyDrive/cafe_data/'
+
+with open(data_path + 'cafe_tk_q_train.pkl', 'rb') as f:
+    tk_q = pickle.load(f)
+
+with open(data_path + 'cafe_emb_q_train.pkl', 'rb') as f:
+    emb_q_train = pickle.load(f)
+
+with open(data_path + 'cafe_i_train.pkl', 'rb') as f:
+    label = pickle.load(f)
 
 
 #################
@@ -43,18 +50,16 @@ word_len = [len(data_frame['Q'][i]) for i in data_frame.index]
 
 # 학습용, 검증용, 테스트용 데이터셋 생성 ○3
 # 학습셋:검증셋:테스트셋 = 7:2:1
-ds = tf.data.Dataset.from_tensor_slices((q_train, label))
-ds = ds.shuffle(len(q_train))
+ds = tf.data.Dataset.from_tensor_slices((emb_q_train, label))
+ds = ds.shuffle(len(emb_q_train))
 
-train_size = int(len(q_train) * 0.7)
-val_size = int(len(q_train) * 0.2)
-test_size = int(len(q_train) * 0.1)
+train_size = int(len(emb_q_train) * 0.7)
+val_size = int(len(emb_q_train) * 0.2)
+test_size = int(len(emb_q_train) * 0.1)
 
 train_ds = ds.take(train_size).batch(20)
 val_ds = ds.skip(train_size).take(val_size).batch(20)
 test_ds = ds.skip(train_size + val_size).take(test_size).batch(20)
-
-
 
 
 
@@ -126,4 +131,13 @@ print('Accuracy: %f' % (accuracy * 100))
 print('loss: %f' % (loss))
 
 # 모델 저장  ○8
-model.save(data_path+ 'intent_model.h5')
+model_data_path = '/content/drive/MyDrive/models/'
+
+model.save(model_data_path + 'intent_model.h5')
+
+
+#모델 불러오기
+from tensorflow.python.keras.models import load_model
+
+model_data_path = '/content/drive/MyDrive/models/'
+model = load_model(model_data_path + 'intent_model.h5')
