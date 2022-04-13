@@ -48,14 +48,17 @@ label = data_frame['Intent']
 word_len = [len(data_frame['Q'][i]) for i in data_frame.index] 
 
 
+
 # 학습용, 검증용, 테스트용 데이터셋 생성 ○3
 # 학습셋:검증셋:테스트셋 = 7:2:1
-ds = tf.data.Dataset.from_tensor_slices((emb_q_train, label))
-ds = ds.shuffle(len(emb_q_train))
+emb_data = emb_q_train
 
-train_size = int(len(emb_q_train) * 0.7)
-val_size = int(len(emb_q_train) * 0.2)
-test_size = int(len(emb_q_train) * 0.1)
+ds = tf.data.Dataset.from_tensor_slices((emb_data, label))
+ds = ds.shuffle(len(emb_data))
+
+train_size = int(len(emb_data) * 0.7)
+val_size = int(len(emb_data) * 0.2)
+test_size = int(len(emb_data) * 0.1)
 
 train_ds = ds.take(train_size).batch(20)
 val_ds = ds.skip(train_size).take(val_size).batch(20)
