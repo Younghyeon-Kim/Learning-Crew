@@ -34,7 +34,6 @@ train_data.head()
 ######전처리 작업
 ######################
 
-(1, 8271, 256)
 questions = []
 for sentence in train_data['Q']:
     # 구두점에 대해서 띄어쓰기
