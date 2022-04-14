@@ -46,16 +46,16 @@ ori_in=lab_encoder.inverse_transform(lab_in)              # 원래 값
 data_frame['Intent'] = lab_in
 
 #lable 값 저장(pkl파일로)
-with open(data_path + 'intent_train.pkl','wb') as f:
+with open(data_path + 'cafe_i_train.pkl','wb') as f:
     pickle.dump(data_frame['Intent'],f)  
 
 #pkl파일 불러오기
-with open(data_path + 'intent_train.pkl','rb') as f:
-     intent = pickle.load(f)
-
+with open(data_path + 'cafe_i_train.pkl','rb') as f:
+     cafe_i_train = pickle.load(f)
 
 #원핫 인코딩(선택)
 data_frame = pd.get_dummies(data_frame, columns = ['Intent'])
+
 
 
 
@@ -93,9 +93,9 @@ def qa_tk(df):
   global data_path
   tk_q = cleaning(df['Q'])
   tk_a = cleaning(df['A'])
-  with open(data_path + 'tk_q_train.pkl','wb') as f:
+  with open(data_path + 'cafe_tk_q_train.pkl','wb') as f:
     pickle.dump(tk_q,f)
-  with open(data_path + 'tk_a_train.pkl','wb') as f:
+  with open(data_path + 'cafe_tk_a_train.pkl','wb') as f:
     pickle.dump(tk_a,f)
   return tk_q, tk_a
 
@@ -105,18 +105,18 @@ print(tk_q[0])
 print(tk_a[0])
 
 
-
 #######################################################
 ### 4. 임베딩(분리한 단어를 분석할 수 있게 벡터로 변환)
 #######################################################
 
 import itertools
 def emb(data):
+ 
   word_len = [len(data_frame['Q'][i]) for i in data_frame.index]
   MAX_SEQ_LEN = int(sum(word_len)/len(word_len))            #한 문장당 단어 평균 갯수
   voc = set(list(itertools.chain.from_iterable(data)))  #단어 총 갯수
   
-  VOCAB_SIZE=len(set(voc))
+  VOCAB_SIZE=len(voc)
   tokenizer = Tokenizer(num_words=VOCAB_SIZE, oov_token='<OOV>')
   tokenizer.fit_on_texts(data)          
 
@@ -127,21 +127,21 @@ def emb(data):
   #단어 사전 생성
   word2idx = {k:v for k, v in tokenizer.word_index.items() if v < VOCAB_SIZE}
   word2idx['<PAD>'] = 0
-
   
-  x_train = pad_sequences(train_seq, maxlen=MAX_SEQ_LEN, padding='post', truncating='post')     # padding = 'pre' 하면 패딩값(0)이 앞에부터 채워짐.
+  
+  
+  x_train = pad_sequences(train_seq, maxlen=MAX_SEQ_LEN, padding='pre', truncating='post')     # padding = 'pre' 하면 패딩값(0)이 앞에부터 채워짐.
   
   return x_train
 
-
 #임베딩 하고 저장하기
-q_train = emb(tk_q)
-a_train = emb(tk_a)
+emb_q_train = emb(tk_q)
+emb_a_train = emb(tk_a)
 
-print(q_train[0])
-print(a_train[0])
+print(emb_q_train[0])
+print(emb_a_train[0])
 
-with open(data_path + 'emb_q_train.pkl', 'wb') as f:
-  pickle.dump(q_train, f)
-with open(data_path + 'emb_a_train.pkl', 'wb') as f:
-  pickle.dump(q_train, f)  
+with open(data_path + 'cafe_emb_q_train.pkl', 'wb') as f:
+  pickle.dump(emb_q_train, f)
+with open(data_path + 'cafe_emb_a_train.pkl', 'wb') as f:
+  pickle.dump(emb_a_train, f)
