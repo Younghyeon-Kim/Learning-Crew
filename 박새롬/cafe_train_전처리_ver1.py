@@ -7,6 +7,7 @@ df.head()
 
 
 # ==========================================
+
 # 직원이 질문하는 경우 & 소비자가 대답하는 경우 삭제
 
 x1 = df[(df['발화자']=='s')&(df['QA여부']=='q')].index
@@ -15,6 +16,7 @@ x2 = df[(df['발화자']=='c')&(df['QA여부']=='a')].index
 df = df.drop(x1)
 df = df.drop(x2)
 df.reset_index(inplace = True, drop = True)
+
 
 
 # ==========================================
@@ -36,11 +38,13 @@ data= pd.DataFrame({'Q':Q,
 
 data
 
+
 # ==========================================
 # 중복 질문 제거
 # 데이터: 72559 --> 중복 제거 후 데이터: 66041 
 data.drop_duplicates(['Q'], inplace = True)
 data.reset_index(inplace = True, drop = True)
+
 
 # ==========================================
 # Intent 삭제
@@ -64,6 +68,33 @@ data.reset_index(inplace=True, drop=True)
 
 #-------------------------------------------
 # 날짜 묻는 질문/날짜로 대답하는 답변 제거
+
+# -------------------------------------------
+# Intent 삭제
+# 데이터: 66041 --> Intent 삭제 후 데이터: 50201
+# -------------------------------------------
+
+# 매장, 멤버십, 예약, 행사, 웹사이트, AS
+del_intent = data[data['Intent'].str.contains('매장|멤버십|예약|행사|웹사이트|AS')].index
+data = data.drop(del_intent)
+
+# 제품_불량
+product_poor = data[data['Intent'].str.contains('제품_불량')].index
+data = data.drop(product_poor)
+
+# 제품_추천
+product_recommend = data[data['Intent'].str.contains('제품_추천')].index
+data = data.drop(product_recommend)
+
+# 제품_용도
+product_usage = data[data['Intent'].str.contains('제품_용도')].index
+data = data.drop(product_usage)
+
+data.reset_index(inplace = True, drop = True)
+
+# 날짜 묻는 질문/날짜로 대답하는 답변 제거
+# 데이터: 50201 --> 제거 후 데이터: 50034/49582
+
 product_date_q = data[data['Q'].str.contains('1월|2월|3월|4월|5월|6월|7월|8월|9월|10월')].index
 data = data.drop(product_date_q)
 
@@ -149,14 +180,26 @@ data = data.drop(['Intent'], axis=1)
 
 #------------------------------------------- 
 # 파일 저장
-DATA_PATH = '/content/drive/MyDrive/미니 프로젝트/data/'
-data.to_csv(DATA_PATH + 'cafe_qa_train_실험용.csv', index=False)
+# DATA_PATH = '/content/drive/MyDrive/미니 프로젝트/data/'
+# data.to_csv(DATA_PATH + 'cafe_qa_train_실험용.csv', index=False)
 
 
 # lst = list(data['Intent'])
 # lst2 = [i.split('_')[0] if i.split('_')[0] != '제품' else i.split('_')[0] +'_'+ i.split('_')[2] for i in lst]
 
 # data['Intent'] = lst2
+
+
+lst = list(data['Intent'])
+lst2 = [i.split('_')[0] if i.split('_')[0] != '제품' else i.split('_')[0] +'_'+ i.split('_')[2] for i in lst]
+
+data['Intent'] = lst2
+
+data['Intent'].value_counts()
+
+DATA_PATH = '/content/drive/MyDrive/미니 프로젝트/data/'
+data.to_csv(DATA_PATH + 'cafe_qa_train.csv', index=False)
+
 
 # data_frame = data
 
